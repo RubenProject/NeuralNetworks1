@@ -1,0 +1,10 @@
+import csv
+
+
+
+with open("test_in.csv", 'rb') as f:
+	reader = csv.reader(f)
+	your_list = list(reader)
+
+
+print your_list
