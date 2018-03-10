@@ -105,6 +105,9 @@ bool train(Network *net, int epochs){
             net->input[i] = train_in[h][i-1];
         target = train_out[h];
 
+        for (i = 0; i <= INPUT_N; i++)
+            cout << net->input[i] << endl;
+
         //evaluate
         for (i = 0; i < OUTPUT_N; i++){
             net->output_in[i] = 0;
@@ -116,7 +119,7 @@ bool train(Network *net, int epochs){
     
         //calculate errors 
         for (i = 0; i < OUTPUT_N; i++){
-            if ((int)target == i)
+            if (i == target)
                 error[i] = 1 - net->output_out[i];
             else
                 error[i] = net->output_out[i];
@@ -129,6 +132,7 @@ bool train(Network *net, int epochs){
                 net->input_output[j][i] = net->input_output[j][i] + ALPHA * net->input[j] * delta[i];
             }
         }
+        exit(0);
     }//for
 }
 
