@@ -109,12 +109,11 @@ bool train(Network *net, int epochs){
         for (i = 0; i < OUTPUT_N; i++){
             net->output_in[i] = 0;
             for (j = 0; j <= INPUT_N; j++ )  {
-                net->output_in[i] += net->input_output[i][j] * net->input[j];
+                net->output_in[i] += net->input_output[j][i] * net->input[j];
             }
             net->output_out[i] = g(net->output_in[i]);
         }
     
-
         //calculate errors 
         for (i = 0; i < OUTPUT_N; i++){
             if ((int)target == i)
@@ -125,9 +124,9 @@ bool train(Network *net, int epochs){
         }
 
         //update weights
-        for (i = 0; i <= OUTPUT_N; i++ ){
+        for (i = 0; i < OUTPUT_N; i++ ){
             for (j = 0; j <= INPUT_N; j++){
-                net->input_output[i][j] = net->input_output[i][j] + ALPHA * net->input[j] * delta[i];
+                net->input_output[j][i] = net->input_output[j][i] + ALPHA * net->input[j] * delta[i];
             }
         }
     }//for
@@ -137,11 +136,11 @@ bool train(Network *net, int epochs){
 double test(Network *net){
     VEC2_D test_in;
     VEC1_D test_out;
-    if (!load_set(TEST_IN, TEST_OUT, test_in, test_out))
+    if (!load_set(TRAIN_IN, TRAIN_OUT, test_in, test_out))
         return -1.0;
 
-    int h, i, j;
-    double error[OUTPUT_N], target, sqerror = 0;
+    int h, i, j, res, count = 0;
+    double error[OUTPUT_N], max, target, sqerror = 0;
 
     net->input[0] = -1;
 
@@ -177,12 +176,25 @@ double test(Network *net){
                 error[i] = net->output_out[i];
         }
 
+        max = -100;
+        res = -1;
+        for (i = 0; i < OUTPUT_N; i++){
+            if (max <= net->output_out[i]){
+                max = net->output_out[i];
+                res = i;
+            }
+        }
+        if (res == (int)target)
+            count++;
+
+
         sqerror = 0;
         for (i = 0; i < OUTPUT_N; i++){
             sqerror += error[i] * error[i];
         }
-        cout << sqerror << endl;
+        //cout << sqerror << endl;
     }
+    cout << count << endl;
     //return square error
     return sqerror;
     
