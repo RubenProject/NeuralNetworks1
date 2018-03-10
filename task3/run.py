@@ -4,7 +4,7 @@ import csv
 
 def get_group(label, L_in, L_out):
     e = np.array(L_out, dtype=float)
-    ei = (e == 1.0).nonzero()
+    ei = (e == label).nonzero()
     L = list() 
     for i in ei[0]:
         L.append(L_in[int(i)])
@@ -88,6 +88,27 @@ def read_csv():
     return test_in, test_out, train_in, train_out
 
 
+#inputs - labels - average energy a / b - target a / b
+def eval_by_feature(train_in, train_out, e_a, e_b, t_a, t_b, get_feature):
+    count = 0.0
+    for i, j in zip(train_in, train_out):
+        e = get_feature(i)
+        if abs(e - e_a) <= abs(e - e_b):
+            if j == t_a:
+                count += 1
+        elif j == t_b:
+            count += 1
+    return count / len(train_out)
+
+
+def get_label(label, L):
+    ret = list()
+    for i in L:
+        if i == label:
+            ret.append(i)
+    return ret
+
+
 
 def main ():
     [test_in, test_out, train_in, train_out] = read_csv()
@@ -99,5 +120,16 @@ def main ():
 
     e1 = get_avg_energy(L1)
     e8 = get_avg_energy(L8)
+
+    T1 = get_group(1.0, train_in, train_out)
+    T8 = get_group(8.0, train_in, train_out)
+    T1_8 = T1 + T8
+
+    tar1 = get_label(1.0, train_out)
+    tar8 = get_label(8.0, train_out)
+    tar1_8 = tar1 + tar8
+
+    print eval_by_feature(T1_8, tar1_8, e1, e8, 1.0, 8.0, get_energy)
+    print eval_by_feature(T1_8, tar1_8, r1, r8, 1.0, 8.0, get_xy_ratio)
 
 main()
