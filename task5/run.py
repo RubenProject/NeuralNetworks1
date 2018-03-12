@@ -12,11 +12,11 @@ def g (x):
 
 
 def xor_net(x1, x2, w):
-    h1 = -1 * w[0] + x1 * w[1] + x2 * w[2]
-    h2 = -1 * w[3] + x1 * w[4] + x2 * w[5]
+    h1 = 1 * w[0] + x1 * w[1] + x2 * w[2]
+    h2 = 1 * w[3] + x1 * w[4] + x2 * w[5]
     h1 = g(h1)
     h2 = g(h2)
-    y = -1 * w[6] + h1 * w[7] + h2 * w[8]
+    y = 1 * w[6] + h1 * w[7] + h2 * w[8]
     return g(y)
 
 
@@ -49,7 +49,11 @@ def main ():
     eta = 0.1
 #possibly use different random initalization?
     w = [random.uniform(-1, 1) for _ in xrange(9)]
-    for i in range(0, int(sys.argv[1])):
+    if len(sys.argv) > 1:
+        epochs = int(sys.argv[1])
+    else:
+        epochs = 10000
+    for i in range(0, epochs):
         gw = grdmse(w)
         for j in range (0, 9):
             w[j] = w[j] - eta * gw[j]
