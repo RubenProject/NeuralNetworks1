@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <vector>
 #include <sstream>
+#include <climits>
 
 using namespace std;
 
@@ -41,16 +42,21 @@ struct Network{
     double output_out[OUTPUT_N];    
 };
 
+//prototypes
+void experiment(Network *net);
+bool load_set(string file_in, string file_out, VEC2_D& in, VEC1_D& out);
+double test(Network *net, bool test);
+bool train(Network *net, int epochs);
 
-// g-functie (sigmoid)
+//sigmoid function
 double g (double x) {
   return 1 / ( 1 + exp ( - BETA * x ) );
-}//g
+}
 
-// afgeleide van g
+//derivative of sigmoid
 double gprime (double x) {
   return BETA * g (x) * ( 1 - g (x) );
-}//gprime
+}
 
 
 bool load_set(string file_in, string file_out, VEC2_D& in, VEC1_D& out){
@@ -81,8 +87,8 @@ bool load_set(string file_in, string file_out, VEC2_D& in, VEC1_D& out){
 bool train(Network *net, int epochs){
     VEC2_D train_in;
     VEC1_D train_out;
-    double error[OUTPUT_N], delta[OUTPUT_N], target;
-    int h, i, j;
+    double error[OUTPUT_N], delta[OUTPUT_N];
+    int h, i, j, k, target;
 
     if (!load_set(TRAIN_IN, TRAIN_OUT, train_in, train_out))
         return false;
@@ -97,16 +103,71 @@ bool train(Network *net, int epochs){
     net->input[0] = -1;
 
     //do this for a specified amount of epochs
-    //feed the data set
-    for (h = 0; h < (int)train_in.size(); h++){
+    for (k = 0; k < epochs; k++){
+        //feed the data set
+        for (h = 0; h < (int)train_in.size(); h++){
+
+            //set data to inputs
+            for (i = 1; i <= INPUT_N; i++)
+                net->input[i] = train_in[h][i-1];
+            target = train_out[h];
+
+            //evaluate
+            for (i = 0; i < OUTPUT_N; i++){
+                net->output_in[i] = 0;
+                for (j = 0; j <= INPUT_N; j++ )  {
+                    net->output_in[i] += net->input_output[j][i] * net->input[j];
+                }
+                net->output_out[i] = g(net->output_in[i]);
+            }
+        
+            //calculate errors 
+            for (i = 0; i < OUTPUT_N; i++){
+                if (i == target)
+                    error[i] = 1 - net->output_out[i];
+                else
+                    error[i] = 0 - net->output_out[i];
+                delta[i] = error[i] * gprime(net->output_in[i]);
+            }
+
+            //update weights
+            for (i = 0; i < OUTPUT_N; i++ ){
+                for (j = 0; j <= INPUT_N; j++){
+                    net->input_output[j][i] = net->input_output[j][i] + ALPHA * net->input[j] * delta[i];
+                }
+            }
+        }
+    }
+}
+
+
+double test(Network *net, bool test){
+    VEC2_D data_in;
+    VEC1_D data_out;
+
+    if (test && !load_set(TRAIN_IN, TRAIN_OUT, data_in, data_out))
+        return -1.0;
+
+    if (!test && !load_set(TEST_IN, TEST_OUT, data_in, data_out))
+        return -1.0;
+
+    int h, i, j, res, target, count = 0;
+    double max;
+
+    net->input[0] = -1;
+
+    for (h = 0; h < (int)data_in.size(); h++){
 
         //set data to inputs
-        for (i = 1; i <= INPUT_N; i++)
-            net->input[i] = train_in[h][i-1];
-        target = train_out[h];
+        for (i = 1; i <= INPUT_N; i++){
+            net->input[i] = data_in[h][i-1];
+        }
+        target = data_out[h];
 
-        for (i = 0; i <= INPUT_N; i++)
-            cout << net->input[i] << endl;
+        //set input buffers to zero 
+        for (i = 0; i < OUTPUT_N; i++){
+            net->output_in[i] = 0;
+        }
 
         //evaluate
         for (i = 0; i < OUTPUT_N; i++){
@@ -116,70 +177,8 @@ bool train(Network *net, int epochs){
             }
             net->output_out[i] = g(net->output_in[i]);
         }
-    
-        //calculate errors 
-        for (i = 0; i < OUTPUT_N; i++){
-            if (i == target)
-                error[i] = 1 - net->output_out[i];
-            else
-                error[i] = net->output_out[i];
-            delta[i] = error[i] * gprime(net->output_in[i]);
-        }
 
-        //update weights
-        for (i = 0; i < OUTPUT_N; i++ ){
-            for (j = 0; j <= INPUT_N; j++){
-                net->input_output[j][i] = net->input_output[j][i] + ALPHA * net->input[j] * delta[i];
-            }
-        }
-        exit(0);
-    }//for
-}
-
-
-double test(Network *net){
-    VEC2_D test_in;
-    VEC1_D test_out;
-    if (!load_set(TRAIN_IN, TRAIN_OUT, test_in, test_out))
-        return -1.0;
-
-    int h, i, j, res, count = 0;
-    double error[OUTPUT_N], max, target, sqerror = 0;
-
-    net->input[0] = -1;
-
-    for (h = 0; h < (int)test_in.size(); h++){
-
-        //set data to inputs
-        for (i = 1; i <= INPUT_N; i++){
-            net->input[i] = test_in[h][i-1];
-        }
-        target = test_out[h];
-
-        //set input buffers to zero 
-        for (i = 0; i < OUTPUT_N; i++){
-            net->output_in[i] = 0;
-        }
-
-        //TODO-3 stuur het voorbeeld door het netwerk
-        for ( i = 0; i <= INPUT_N; i++ )  {
-            for ( j = 0; j < OUTPUT_N; j++ )  {
-                net->output_in[j] += net->input[i] * net->input_output[i][j];
-            }
-        }
-
-        for ( i = 0; i < OUTPUT_N; i++ )  {
-            net->output_out[i] = g(net->output_in[i]);
-        }
-    
-        //calculate errors 
-        for (i = 0; i < OUTPUT_N; i++){
-            if ((int)target == i)
-                error[i] = 1 - net->output_out[i];
-            else
-                error[i] = net->output_out[i];
-        }
-
+        //check result
         max = -100;
         res = -1;
         for (i = 0; i < OUTPUT_N; i++){
@@ -188,22 +187,44 @@ double test(Network *net){
                 res = i;
             }
         }
-        if (res == (int)target)
+        if (res == target)
             count++;
 
-
-        sqerror = 0;
-        for (i = 0; i < OUTPUT_N; i++){
-            sqerror += error[i] * error[i];
-        }
-        //cout << sqerror << endl;
     }
-    cout << count << endl;
-    //return square error
-    return sqerror;
-    
+    return (double)count / data_out.size();
 }
 
+
+void experiment(Network *net){
+    ofstream f_out;
+    const int AVG_RUN = 10;
+    const int MAX_RUN = 10;
+    double train_avg, test_avg;
+    int i, j;
+
+    f_out.open("./data.txt");
+    for (i = 0; i < MAX_RUN; i++){
+        cout << "run: " << i+1 << " of " << MAX_RUN << endl;
+        train_avg = 0;
+        test_avg = 0;
+        for (j = 0; j < AVG_RUN; j++){
+            net = new Network();
+            train(net, i * 100); 
+            train_avg += test(net, 0);
+            test_avg += test(net, 1);
+            delete net;
+        }
+        train_avg /= AVG_RUN;
+        test_avg /= AVG_RUN;
+        f_out << i * 100;
+        f_out << ", "; 
+        f_out << train_avg; 
+        f_out << ", "; 
+        f_out << test_avg;
+        f_out << "\n";
+    }
+    f_out.close();
+}
 
 
 int main (int argc, char* argv[ ]) {
@@ -211,17 +232,20 @@ int main (int argc, char* argv[ ]) {
     int epochs;
 
     if ( argc != 2 ) {
-      return 1;  
-    }//if
+        experiment(net);
+        return 0;
+    }
 
     epochs = atoi (argv[1]);
-
     net = new Network();
 
     //train network
-    train(net, 1000);
+    cout << "training score: " << endl;
+    train(net, epochs);
     //test network
-    cout << test(net) << endl;
+    cout << "===============" << endl;
+    cout << "test score: " << endl;
+    cout << test(net, 1) << endl;
 
     return 0;
 }//main

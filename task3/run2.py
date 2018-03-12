@@ -55,10 +55,12 @@ def get_avg_ratio(L):
         avg_ratio += t
         H.append(t)
     L_ratio = avg_ratio / len(L)
+    D = dict((x, H.count(x)) for x in set(H))
     fig = plt.figure()
+    plt.title('avg ratio')
     plt.xlabel('x:y ratio')
     plt.ylabel('Frequency')
-    plt.hist(H, bins = 20)
+    plt.bar(range(len(D)), D.values(), align='center')
     return L_ratio
 
 
@@ -66,14 +68,17 @@ def get_avg_energy(L):
     avg_e = 0.0
     H = list()
     for i in L:
-        t = get_energy(i)
+        t = get_xy_ratio(i)
         avg_e += t
         H.append(t)
     L_e = avg_e / len(L)
+    D = dict((x, H.count(x)) for x in set(H))
     fig = plt.figure()
+    plt.title('avg energy')
     plt.xlabel('Energy')
     plt.ylabel('Frequency')
-    plt.hist(H, bins = 20)
+    plt.bar(range(len(D)), D.values(), align='center')
+    print D
     return L_e
 
 
@@ -130,15 +135,15 @@ def main ():
     L1 = get_group(1.0, test_in, test_out)
     L8 = get_group(8.0, test_in, test_out)
 
+#TODO add histograms for occurances
     r1 = get_avg_ratio(L1)
     print r1
     r8 = get_avg_ratio(L8)
     print r8
 
+#TODO add histograms for occurances
     e1 = get_avg_energy(L1)
-    print e1
     e8 = get_avg_energy(L8)
-    print e8
 
     T1 = get_group(1.0, train_in, train_out)
     T8 = get_group(8.0, train_in, train_out)
