@@ -1,6 +1,8 @@
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+from sklearn.naive_bayes import GaussianNB
+from sklearn import datasets
 
 
 def get_group(label, L_in, L_out):
@@ -127,30 +129,75 @@ def get_label(label, L):
 
 def main ():
     [test_in, test_out, train_in, train_out] = read_csv()
-    L1 = get_group(1.0, test_in, test_out)
-    L8 = get_group(8.0, test_in, test_out)
 
-    r1 = get_avg_ratio(L1)
-    print r1
-    r8 = get_avg_ratio(L8)
-    print r8
+    Train1 = get_group(1.0, train_in, train_out)
+    Train8 = get_group(8.0, train_in, train_out)
+    Train1_8 = Train1 + Train8
 
-    e1 = get_avg_energy(L1)
-    print e1
-    e8 = get_avg_energy(L8)
-    print e8
+    Test1 = get_group(1.0, test_in, test_out)
+    Test8 = get_group(8.0, test_in, test_out)
+    Test1_8 = Test1 + Test8
 
-    T1 = get_group(1.0, train_in, train_out)
-    T8 = get_group(8.0, train_in, train_out)
-    T1_8 = T1 + T8
+    TrainTar1 = get_label(1.0, train_out)
+    TrainTar8 = get_label(8.0, train_out)
+    TrainTar1_8 = TrainTar1 + TrainTar8 
 
-    tar1 = get_label(1.0, train_out)
-    tar8 = get_label(8.0, train_out)
-    tar1_8 = tar1 + tar8
+    TestTar1 = get_label(1.0, test_out)
+    TestTar8 = get_label(8.0, test_out)
+    TestTar1_8 = TestTar1 + TestTar8 
 
-    print eval_by_feature(T1_8, tar1_8, e1, e8, 1.0, 8.0, get_energy)
-    print eval_by_feature(T1_8, tar1_8, r1, r8, 1.0, 8.0, get_xy_ratio)
-    plt.show()
+    #analysis
+    print ("P(C) = " + str(float(len(Train1)) / (len(Train1_8))))
+
+#train
+#=========================================================
+    feat = list()
+    for i in Train1_8:
+        feat.append(get_xy_ratio(i))
+
+    gnb = GaussianNB()
+    x = np.array(feat) 
+    x = x.reshape(-1, 1)
+    y = np.array(TrainTar1_8)
+    y_pred = gnb.fit(x, y).predict(x)
+
+    print (y_pred == TrainTar1_8).sum()
+    t = (y_pred == 1.0).sum()
+    print "P(X)= " + str(float(t) /len(TrainTar1_8))
+
+#=========================================================
+    feat = list()
+    for i in Test1_8:
+        feat.append(get_xy_ratio(i))
+
+    x = np.array(feat)
+    x = x.reshape(-1, 1)
+    y_pred = gnb.predict(x)
+
+    #print (y_pred != TestTar1_8).sum()
+
+#=========================================================
+    feat = list()
+    for i in Train1:
+        feat.append(get_xy_ratio(i))
+
+    x = np.array(feat)
+    x = x.reshape(-1, 1)
+    y_pred = gnb.predict(x)
+
+    count = 0
+    for i, j in zip(y_pred, TrainTar1):
+        if (i == j):
+            count += 1
+    print "P(X|C)= " + str(float(count) / len(Train1))
+
+
+
+
+
+    #print ("P(X|C_1) =" + str(eval_by_feature(T1, tar1, r1, r8, 1.0, 8.0, get_xy_ratio)))
+    #print ("P(X|C_8) =" + str(eval_by_feature(T8, tar8, r1, r8, 1.0, 8.0, get_xy_ratio)))
+    #plt.show()
 
 main()
 

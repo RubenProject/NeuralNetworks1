@@ -1,12 +1,6 @@
-
-//
-// C++-programma voor neuraal netwerk (NN) met \'e\'en output-knoop
-// Zie www.liacs.leidenuniv.nl/~kosterswa/AI/nnhelp.pdf
-// 13 april 2016
-// Compileren: g++ -Wall -O2 -o nn nn.cc
-// Gebruik:    ./nn <inputs> <hiddens> <epochs>
-// Voorbeeld:  ./nn 2 3 100000
-//
+// g++ run.cpp -o prog
+// run with: ./prog for experiments
+// or ./prog <epochs> to train for x epochs
 
 #include <iostream>
 #include <cmath>
