@@ -25,7 +25,7 @@
 # i; j = 0, 1, ... 9. Given all these distances, try to say something about the expected accuracy
 # of your classifier. What pairs of digits seem to be most difficult to separate?
 
-# In[22]:
+# In[2]:
 
 
 import os
@@ -41,19 +41,19 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import pairwise
 
 
-# In[2]:
+# In[3]:
 
 
 #set directory
 #import data
-os.chdir('C:/Users/Dayu/Desktop/Statistical Science; Data Science/Semester4/Neural Network/assignment/assignment1/data(1)/data')
+os.chdir('../data')
 trainin = pd.read_csv('train_in.csv', header = None)
 trainout = pd.read_csv('train_out.csv', header = None)
 testin = pd.read_csv('test_in.csv', header = None)
 testout = pd.read_csv('test_out.csv', header = None)
 
 
-# In[4]:
+# In[13]:
 
 
 #calculate the centers
@@ -91,7 +91,7 @@ for i in range(0,10):
 # In[5]:
 
 
-#take a look at the distances
+# take a look at the distances
 pd.DataFrame(Ds)
 
 #dist(3,5) = 6.118 
@@ -100,9 +100,10 @@ pd.DataFrame(Ds)
 #the most difficult pairs to tell apart
 
 
-# In[40]:
+# In[15]:
 
 
+Rs = [ '%.2f' % elem for elem in Rs]
 Rs
 #Radius shows how far the outliers are from the center, for each category
 #for almost all categories except 2, all the centers of other categories are within the radius
@@ -127,7 +128,7 @@ Rs
 # sklearn.metrics.pairwise.pairwise distances. Which distance measure provides best
 # results (on the test set)?
 
-# In[33]:
+# In[39]:
 
 
 #define functions
@@ -157,7 +158,7 @@ def plot_confusion_matrix(cm, classes,
 
     print(cm)
 
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.imshow(cm, interpolation='nearest', cmap=cmap, aspect='auto')
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
@@ -171,12 +172,12 @@ def plot_confusion_matrix(cm, classes,
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
 
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
 
-# In[38]:
+# In[40]:
 
 
 #classify training set, Euclidean distance measure
@@ -190,7 +191,14 @@ plot_confusion_matrix(ecd_train_cm, classes=['0','1','2','3','4','5','6','7','8'
 plt.show()
 
 
-# In[39]:
+# In[26]:
+
+
+#overall accuracy
+np.mean(ecd_train == trainout_array)
+
+
+# In[42]:
 
 
 #classify test set, Euclidean distance measure
@@ -204,7 +212,20 @@ plot_confusion_matrix(ecd_test_cm, classes=['0','1','2','3','4','5','6','7','8',
 plt.show()
 
 
-# In[41]:
+# In[43]:
+
+
+#overall accuracy
+np.mean(ecd_test == testout_array)
+
+
+# In[45]:
+
+
+Ns
+
+
+# In[46]:
 
 
 #classify test set, cosine measure
@@ -217,7 +238,21 @@ plot_confusion_matrix(cos_test_cm, classes=['0','1','2','3','4','5','6','7','8',
 plt.show()
 
 
-# In[43]:
+# In[47]:
+
+
+#overall accuracy
+np.mean(cos_test == testout_array)
+
+
+# In[ ]:
+
+
+#overall accuracy
+np.mean(ecd_train == trainout_array)
+
+
+# In[48]:
 
 
 #classify test set, Manhattan measure
@@ -230,65 +265,13 @@ plot_confusion_matrix(mh_test_cm, classes=['0','1','2','3','4','5','6','7','8','
 plt.show()
 
 
-# In[45]:
+# In[49]:
 
 
-#classify test set, l1 measure
-L1_test = center_dist_classifier(testin, 10, Cs, 'l1') 
-L1_test_cm = confusion_matrix(testout_array, L1_test)
-
-plt.figure()
-plot_confusion_matrix(L1_test_cm, classes=['0','1','2','3','4','5','6','7','8','9'], 
-                      normalize=True, title='L1, Test Set')
-plt.show()
+#overall accuracy
+np.mean(mh_test == testout_array)
 
 
-# In[ ]:
+# In[109]:
 
-
-#Task 5-1
-def xor_net(c(x1, x2), w):
-    #assuming that w consists of c(b1, b2, b3, w1, w2, v1, v2, u1, u2), as the figure in slide p.13, MLP and Backpropagation
-    net1 = w1*x1 + w2*x2
-    y1 = sigmoid(net1)
-    net2 = v1*x1 + v2*x2
-    y2 = sigmoid(net2)
-    net = y1*u1 + y2*u2
-    y = sigmoid(net)
-    return(y)
-
-
-#Task 5-2
-def mse(weights):
-    se_00 = (xor_net(c(0,0), weights) - 0)^2
-    se_01 = (xor_net(c(0,1), weights) - 1)^2
-    se_10 = (xor_net(c(1,0), weights) - 1)^2
-    se_11 = (xor_net(c(1,1), weights) - 0)^2
-    avgse = mean(se_00, se_01, se_10, se_11)
-    return(avgse)
-
-#Task 5-3
-def grdmse(weights):
-    d_b1_func = diff(mse, b1)
-    d_b1 = d_b1_func(weights)
-    
-    d_b2_func = #the same
-    d_b2 = #the same
-    
-    d_b3 = #the same
-    d_w1 = #the same
-    
-    d_w2 = #the same
-    d_v1 = #the same
-    
-    d_v2 = #the same
-    d_u1 = #the same
-    
-    d_u2 = #the same
-    return(c(d_b1, d_b2, d_b3, d_w1, d_w2, d_v1, d_v2, d_u1, d_u2)
-           
-#Task 5-4
-
-
-    
 
