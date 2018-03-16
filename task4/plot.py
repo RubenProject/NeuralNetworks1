@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import csv
 
+#this program is solely used to plot data from the network
+#run with python plot.py
 
 
 with open("./data.txt", 'rb') as f:

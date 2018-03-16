@@ -1,14 +1,9 @@
-
-# coding: utf-8
-
-# In[203]:
-
-
 import numpy as np
-import csv
 import matplotlib.pyplot as plt
-import os
 import pandas as pd
+
+#run with python3 task3.py
+
 
 def get_xy_ratio(L):
     A = np.array(L)
@@ -40,20 +35,16 @@ def get_xy_ratio(L):
 
 
 
-# In[204]:
-
-
 #import as dataframe
 train_in = pd.read_csv('../data/train_in.csv', header = None)
 train_out = pd.read_csv('../data/train_out.csv', header = None)
 test_in = pd.read_csv('../data/test_in.csv', header = None)
 test_out = pd.read_csv('../data/test_out.csv', header = None)
 
-#get index of the vectors of integer1, train
+#get index of the input vectors representing integer 1, train
 idx_1 = train_out.index[train_out.iloc[:,0] == 1].tolist()
-#get index of the vectors of integer8, train
+#get index of the input vectors representing integer 8, train
 idx_8 = train_out.index[train_out.iloc[:,0] == 8].tolist()
-
 #input vectors of 1&8, train
 trainin_1 = train_in.iloc[idx_1,:]
 trainin_8 = train_in.iloc[idx_8,:]
@@ -63,22 +54,19 @@ trainout_1 = train_out.iloc[idx_1,:]
 trainout_8 = train_out.iloc[idx_8,:]
 trainout_18 = trainout_1.append(trainout_8)
 
-#get index of the vectors of integer1, test
+#get index of the input vectors representing integer 1, test
 idx_1_test = test_out.index[test_out.iloc[:,0] == 1].tolist()
-#get index of the vectors of integer8, test
+#get index of the input vectors representing integer 8, test
 idx_8_test = test_out.index[test_out.iloc[:,0] == 8].tolist()
-
 #input vectors of 1&8, test
 testin_1 = test_in.iloc[idx_1_test,:]
 testin_8 = test_in.iloc[idx_8_test,:]
 testin_18 = testin_1.append(testin_8)
 #...and the corresponding labels, test
 testout_1 = test_out.iloc[idx_1_test,:]
-testout_8 = test_out.iloc[idx_1_test,:]
+testout_8 = test_out.iloc[idx_8_test,:]
 testout_18 = testout_1.append(testout_8)
 
-
-# In[205]:
 
 
 #prior probabilities P(C1), P(C8)
@@ -159,8 +147,6 @@ def bayesclass(l):
         return(8)
 
 
-# In[206]:
-
 
 #classify trainset with bayes classifier, see the prediction accuracy
 correct = 0
@@ -179,19 +165,15 @@ for i in range(0, testin_18.shape[0]):
 print('prediction accuracy, test set: ', correct/testin_18.shape[0])
 
 
-# In[207]:
 
-
-#histogram of P(X|C1) and P(X|C8)
-from matplotlib import pyplot
-
+#histogram of P(X|C1) and P(X|C8) (class-conditional probability)
+#p17
 weights1 = np.ones_like(xy_ratios_1)/len(xy_ratios_1)
 weights8 = np.ones_like(xy_ratios_8)/len(xy_ratios_8)
 
-pyplot.hist(xy_ratios_1, bins, alpha = 0.5, color = "red", histtype = "bar", ec = 'black', label = "P(X|C1)", weights = weights1)
-pyplot.hist(xy_ratios_8, bins, alpha = 0.5, color = "blue", histtype = "bar", ec = 'black', label = "P(X|C8)", weights = weights8)
-pyplot.legend(loc='upper right')
-pyplot.xlabel("value of X")
-pyplot.ylabel("P(X|C)")
-pyplot.show()
-
+plt.hist(xy_ratios_1, bins, alpha = 0.5, color = "red", histtype = "bar", ec = 'black', label = "P(X|C1)", weights = weights1)
+plt.hist(xy_ratios_8, bins, alpha = 0.5, color = "blue", histtype = "bar", ec = 'black', label = "P(X|C8)", weights = weights8)
+plt.legend(loc='upper right')
+plt.xlabel("value of X")
+plt.ylabel("P(X|C)")
+plt.show()

@@ -3,6 +3,10 @@ import math
 import random
 import sys
 
+
+#run with python3 task5.py
+
+
 #sigmoid
 def g(x):
     return 1 / (1 + math.exp(-x))

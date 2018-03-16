@@ -1,3 +1,4 @@
+// compile with
 // g++ run.cpp -o prog
 // run with: ./prog for experiments
 // or ./prog <epochs> to train for x epochs

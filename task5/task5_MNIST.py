@@ -3,6 +3,8 @@ import csv
 import math
 import random
 
+#run with python task5_MNIST.py
+
 
 def read_csv():
     with open("../data/test_in.csv", 'rb') as f:
@@ -107,21 +109,21 @@ def test(D_in, D_out, W):
     return c / len(D_out)
 
 
+def randIndx(length, size):
+    r = random.randint(0, length - 1 - size)
+    upper = r + size
+    lower = r
+    return lower, upper
+
+
 def train(D_in, D_out, W, eta, epochs):
-    step = 50
-    lower = 0
-    upper = step 
+    sample_size = 50 
     for i in range(0, epochs):        
         #update w
         print "epoch {}".format(i)
-        if upper + step < len(D_out):
-            lower += step
-            upper += step
-        else:
-            lower = 0
-            upper = step
+        [lower , upper] = randIndx(len(D_out), sample_size)
         sub_D_in = D_in[lower:upper]
-        sub_D_out = D_in[lower:upper]
+        sub_D_out = D_out[lower:upper]
         gw = grdmse(sub_D_in, sub_D_out, W)
         for j in range (wlen):
             W[j] = W[j] - eta * gw[j]
@@ -137,18 +139,9 @@ W = [random.normalvariate(0.0, 4) for _ in range(wlen)]
 
 f = open("out.txt", "w")
 
-W = train(train_in, train_out, W, 0.1, 10)
-f.write("W = " + str(W) + "\n")
-acc = test(test_in, test_out, W)
-f.write("acc = " + str(acc) + "\n")
-
-
-
-W = train(train_in, train_out, W, 0.1, 10)
-f.write("W = " + str(W) + "\n")
-acc = test(test_in, test_out, W)
-f.write("acc = " + str(acc) + "\n")
-
-
+for i in range(5):
+    W = train(train_in, train_out, W, 0.1, 10)
+    acc = test(test_in, test_out, W)
+    f.write(str(i) + ", acc = " + str(acc) + "\n")
 
 f.close()

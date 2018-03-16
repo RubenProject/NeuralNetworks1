@@ -1,34 +1,3 @@
-
-# coding: utf-8
-
-# Task 1: Analyze distances between images
-# 
-# The purpose of this task is to develop some intuitions about clouds of points in highly
-# dimensional spaces. In particular, you are supposed to develop a very simple algorithm for
-# classifying hand-written digits.
-# 
-# Let us start with developing a simple distance-based classifier. For each digit d, d =
-# 0, 1, ... 9, let us consider a cloud of points in 256 dimensional space, Cd, which consists of
-# all training images (vectors) that represent d. Then, for each cloud Cd we can calculate its
-# center, cd, which is just a 256-dimensional vector of means over all coordinates of vectors that
-# belong to Cd. Once we have these centers, we can easily classify new images: to classify an
-# image, calculate the distance from the vector that represents this image to each of the 10
-# centers; select as a label the closest one. 
-# 
-# But first let us take a closer look at out data.
-# For each cloud Cd, d = 0, 1, ... 9, calculate its center, ci, and the radius, ri. The radius of
-# Cd is defined as the biggest distance between the center of Cd and points from Cd. Addition-
-# ally, find the number of points that belong to Ci, ni. Clearly, at this stage you are supposed
-# to work with the training set only.
-# 
-# Next, calculate the distances between the centers of the 10 clouds, distij = dist(ci; cj ), for
-# i; j = 0, 1, ... 9. Given all these distances, try to say something about the expected accuracy
-# of your classifier. What pairs of digits seem to be most difficult to separate?
-
-# In[2]:
-
-
-import os
 import csv
 import pandas as pd
 import numpy as np
@@ -40,20 +9,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import pairwise
 
+#run with python task1+2.py
 
-# In[3]:
 
 
 #set directory
 #import data
-os.chdir('../data')
-trainin = pd.read_csv('train_in.csv', header = None)
-trainout = pd.read_csv('train_out.csv', header = None)
-testin = pd.read_csv('test_in.csv', header = None)
-testout = pd.read_csv('test_out.csv', header = None)
+trainin = pd.read_csv('../data/train_in.csv', header = None)
+trainout = pd.read_csv('../data/train_out.csv', header = None)
+testin = pd.read_csv('../data/test_in.csv', header = None)
+testout = pd.read_csv('../data/test_out.csv', header = None)
 
 
-# In[13]:
 
 
 #calculate the centers
@@ -88,7 +55,6 @@ for i in range(0,10):
         Ds[i,j] = np.linalg.norm(Cs[i,] - Cs[j,])
 
 
-# In[5]:
 
 
 # take a look at the distances
@@ -100,7 +66,6 @@ pd.DataFrame(Ds)
 #the most difficult pairs to tell apart
 
 
-# In[15]:
 
 
 Rs = [ '%.2f' % elem for elem in Rs]
@@ -128,7 +93,7 @@ Rs
 # sklearn.metrics.pairwise.pairwise distances. Which distance measure provides best
 # results (on the test set)?
 
-# In[39]:
+
 
 
 #define functions
@@ -177,7 +142,7 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 
-# In[40]:
+
 
 
 #classify training set, Euclidean distance measure
@@ -191,14 +156,11 @@ plot_confusion_matrix(ecd_train_cm, classes=['0','1','2','3','4','5','6','7','8'
 plt.show()
 
 
-# In[26]:
 
 
 #overall accuracy
 np.mean(ecd_train == trainout_array)
 
-
-# In[42]:
 
 
 #classify test set, Euclidean distance measure
@@ -212,20 +174,15 @@ plot_confusion_matrix(ecd_test_cm, classes=['0','1','2','3','4','5','6','7','8',
 plt.show()
 
 
-# In[43]:
-
 
 #overall accuracy
 np.mean(ecd_test == testout_array)
 
 
-# In[45]:
-
 
 Ns
 
 
-# In[46]:
 
 
 #classify test set, cosine measure
@@ -238,21 +195,18 @@ plot_confusion_matrix(cos_test_cm, classes=['0','1','2','3','4','5','6','7','8',
 plt.show()
 
 
-# In[47]:
 
 
 #overall accuracy
 np.mean(cos_test == testout_array)
 
 
-# In[ ]:
 
 
 #overall accuracy
 np.mean(ecd_train == trainout_array)
 
 
-# In[48]:
 
 
 #classify test set, Manhattan measure
@@ -265,13 +219,7 @@ plot_confusion_matrix(mh_test_cm, classes=['0','1','2','3','4','5','6','7','8','
 plt.show()
 
 
-# In[49]:
 
 
 #overall accuracy
 np.mean(mh_test == testout_array)
-
-
-# In[109]:
-
-
